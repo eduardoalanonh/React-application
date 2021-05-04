@@ -14,6 +14,7 @@ interface SignInCredentials {
 interface AuthContextData {
     user: object;
     signIn(credentials: SignInCredentials): Promise<void>;
+    signOut(): void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -46,21 +47,29 @@ const AuthProvider: React.FC = ({ children }) => {
 
     }, []);
 
+    const signOut = useCallback(() => {
+        localStorage.removeItem('@GoBarder:token');
+        localStorage.removeItem('@GoBarder:user');
+
+
+        setData({} as AuthState);
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ user: data.user, signIn }}>
+        <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );
 
- }
+}
 
-function useAuth(): AuthContextData{
+function useAuth(): AuthContextData {
     const context = useContext(AuthContext);
 
-    if(!context){
+    if (!context) {
         throw new Error('useAuth must be used whitin an Authprovider')
     }
     return context;
 }
 
-export {  AuthProvider, useAuth}
+export { AuthProvider, useAuth }
